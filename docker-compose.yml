@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  postgres:
+    restart: on-failure
+    image: 'postgres:latest'
+    environment: 
+      - PGUSER=postgres
+      - POSTGRES_PASSWORD=postgres_password
+
+  nginx:
+    restart: always
+    build: ./nginx
+    ports:
+      - "80:80"
+
+  backend:
+    restart: on-failure
+    build: ./backend
+    command: sh -c "python3 manage.py makemigrations todo && python3 manage.py migrate todo && python3 manage.py runserver 0.0.0.0:8000"
+    ports: 
+      - "8000:8000"
+    depends_on: 
+      - postgres
+
+
+  frontend:
+    build: ./frontend
+    ports: 
+      - "3000:3000"
+
+
+  
